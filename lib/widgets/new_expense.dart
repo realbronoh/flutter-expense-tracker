@@ -16,6 +16,33 @@ class _NewExpenseState extends State<NewExpense> {
   DateTime? _selectedDate;
   Category _selectedCategory = Category.leisure;
 
+  void _submitExpenseData() {
+    final enteredTitle = _titleController.text.trim();
+    final enteredAmount = double.tryParse(_amountController.text);
+    final titleIsInvalid = enteredTitle.isEmpty;
+    final amountIsInvalid = enteredAmount == null || enteredAmount <= 0;
+    final dateIsInvalid = _selectedDate == null;
+    if (titleIsInvalid || amountIsInvalid || dateIsInvalid) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Invalid input'),
+          content: const Text('Please enter valid title and amount'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+              },
+              child: const Text('Okay'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    return;
+  }
+
   void _presentDatePicker() async {
     final now = DateTime.now();
     final firstDate = DateTime(now.year - 1, now.month, now.day);
@@ -109,10 +136,7 @@ class _NewExpenseState extends State<NewExpense> {
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: () {
-                  print(_titleController.text);
-                  print(_amountController.text);
-                },
+                onPressed: _submitExpenseData,
                 child: const Text("Save Expense"),
               ),
             ],
