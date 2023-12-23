@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:expense_tracker/models/expense.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NewExpense extends StatefulWidget {
@@ -18,16 +21,11 @@ class _NewExpenseState extends State<NewExpense> {
   DateTime? _selectedDate;
   Category _selectedCategory = Category.leisure;
 
-  void _submitExpenseData() {
-    final enteredTitle = _titleController.text.trim();
-    final enteredAmount = double.tryParse(_amountController.text);
-    final titleIsInvalid = enteredTitle.isEmpty;
-    final amountIsInvalid = enteredAmount == null || enteredAmount <= 0;
-    final dateIsInvalid = _selectedDate == null;
-    if (titleIsInvalid || amountIsInvalid || dateIsInvalid) {
-      showDialog(
+  void _showDialog() {
+    if (Platform.isIOS) {
+      showCupertinoDialog(
         context: context,
-        builder: (ctx) => AlertDialog(
+        builder: (ctx) => CupertinoAlertDialog(
           title: const Text('Invalid input'),
           content: const Text('Please enter valid title and amount'),
           actions: [
@@ -40,6 +38,35 @@ class _NewExpenseState extends State<NewExpense> {
           ],
         ),
       );
+      return;
+    }
+    // Android
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Invalid input'),
+        content: const Text('Please enter valid title and amount'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+            },
+            child: const Text('Okay'),
+          ),
+        ],
+      ),
+    );
+    return;
+  }
+
+  void _submitExpenseData() {
+    final enteredTitle = _titleController.text.trim();
+    final enteredAmount = double.tryParse(_amountController.text);
+    final titleIsInvalid = enteredTitle.isEmpty;
+    final amountIsInvalid = enteredAmount == null || enteredAmount <= 0;
+    final dateIsInvalid = _selectedDate == null;
+    if (titleIsInvalid || amountIsInvalid || dateIsInvalid) {
+      _showDialog();
       return;
     }
     final expense = Expense(
